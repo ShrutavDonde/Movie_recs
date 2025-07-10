@@ -1,0 +1,7 @@
+streamlit
+pandas
+numpy
+scikit-surprise
+scikit-learn
+joblib
+tqdm
