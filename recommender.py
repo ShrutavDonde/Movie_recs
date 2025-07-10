@@ -32,6 +32,19 @@ from numpy.linalg import norm
 from sklearn.preprocessing import MultiLabelBinarizer
 from tqdm import tqdm
 
+
+# ------------------------------------------------------------------
+#  Tiny wrapper class for the latent-factor pickle
+#  (must be defined *before* pickle.load)
+# ------------------------------------------------------------------
+class ItemFactorModel:
+    def __init__(self, factors, idx_map):
+        self.factors = factors
+        self.idx_map = idx_map
+    def vector(self, movie_id: int):
+        return self.factors[self.idx_map[movie_id]]
+
+
 # ───────────────────────────────────────────────────────────────
 #  Paths / core CSVs
 # ───────────────────────────────────────────────────────────────
