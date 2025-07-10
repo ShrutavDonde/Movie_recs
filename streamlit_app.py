@@ -28,6 +28,6 @@ if st.button("Recommend"):
             title_query=query,
             include_genres=set(genres),
             top_k=top_k,
-            w_cf=w_cf, w_gen=w_gen, w_actor=w_act, w_dir=w_dir
+            w_cf=w_cf, w_gen=w_gen, w_act=w_act, w_dir=w_dir
         )
     st.dataframe(df, hide_index=True, use_container_width=True)
