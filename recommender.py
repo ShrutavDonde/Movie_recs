@@ -44,6 +44,12 @@ class ItemFactorModel:
     def vector(self, movie_id: int):
         return self.factors[self.idx_map[movie_id]]
 
+import sys
+# ✅ Make the class available under the name the pickle expects
+sys.modules.setdefault("__main__", sys.modules[__name__])
+setattr(sys.modules["__main__"], "ItemFactorModel", ItemFactorModel)
+
+
 
 # ───────────────────────────────────────────────────────────────
 #  Paths / core CSVs
