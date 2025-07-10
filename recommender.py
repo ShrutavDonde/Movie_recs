@@ -44,19 +44,24 @@ train["i_idx"] = train["movieId"].map(item2idx)
 # ────────────────────────────────────────────────────────────────
 #  Pre-trained SVD model  ▸  load from data/svd_model.pkl
 # ────────────────────────────────────────────────────────────────
-import os, joblib
-from surprise import SVD   # only for type hints; no training happens here
+# ────────────────────────────────────────────────────────────────
+#  Load tiny   svd_item_factors.pkl.gz   (≈ 6 MB, item vectors only)
+# ────────────────────────────────────────────────────────────────
+import os, gzip, pickle
+import numpy as np
 
 BASE_DIR   = os.path.join(os.path.dirname(__file__), "data")
-MODEL_PATH = os.path.join(BASE_DIR, "svd_model.pkl")   # the file you exported
+MODEL_PATH = os.path.join(BASE_DIR, "svd_item_factors.pkl.gz")   # new file
 
 try:
-    algo: SVD = joblib.load(MODEL_PATH)   # loads in ~1 s, ~25-35 MB
+    with gzip.open(MODEL_PATH, "rb") as f:
+        item_model = pickle.load(f)      # class ItemFactorModel
 except FileNotFoundError as e:
     raise RuntimeError(
-        f"Pre-trained model not found at {MODEL_PATH}. "
-        "Train it once in the notebook, save it there, and commit to repo."
+        f"Pre-trained item-factor model not found at {MODEL_PATH}. "
+        "Run the one-off trainer cell and commit the .pkl.gz file."
     ) from e
+
 
 # recommender.py  – section: genre one-hot matrix
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -128,11 +133,10 @@ import pandas as pd
 
 # ---------- collaborative & genre helpers ---------------------
 def cf_sim(mid_a: int, mid_b: int) -> float:
-    """Cosine similarity of latent factors; 0 if either movie unseen."""
     try:
-        va, vb = algo.qi[item2idx[mid_a]], algo.qi[item2idx[mid_b]]
+        va, vb = item_model.vector(mid_a), item_model.vector(mid_b)
         return float(va @ vb / (norm(va) * norm(vb) + 1e-12))
-    except KeyError:                   # cold-start ID
+    except KeyError:          # cold-start ID
         return 0.0
 
 def genre_sim(mid_a: int, mid_b: int) -> float:
